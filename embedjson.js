@@ -1,22 +1,32 @@
-const { TextInputStyle } = require("discord.js")
-const modalBuilder = require("../../utils/modalBuilder")
-const generate = require("../../utils/generate")
-const { queryParams } = require('../../../db/database')
-
 module.exports = {
- name: "embedjson",
- callback: (client, interaction) => {
-    let type = interaction.customId.split("|").slice(1).join("|");
-    let rId = generate(32);
-    client.queryParams(`INSERT INTO actions (id, action) VALUES (?, ?)`, [rId, `embedjson|${type}`]);
-  interaction.showModal(modalBuilder(`action|${rId}`, `Embed | .json format`, [{
-   setCustomId: 'json',
-   setMaxLength: 4000,
-   setMinLength: 1,
-   setRequired: true,
-   setLabel: "Enter JSON format embed",
-   setPlaceholder: "Use discohook.org for example",
-   setStyle: TextInputStyle.Paragraph
-  }]))
- }
-}
+    name: "embedjson",
+    callback: (client, interaction) => {
+        try {
+            let type = interaction.customId.split("|")[1];
+
+            let embedJson = interaction.fields.getTextInputValue('json');
+            let savedmessage = `Imported your ${type} embed! You can edit it if needed, then save.`
+            
+
+            let embedData = JSON.parse(embedJson);
+            
+
+
+            let embeds = embedData.embeds;
+            
+
+            interaction.update({
+                content: savedmessage,
+                embeds: embeds,
+                attachments: []
+            });
+        } catch (error) {
+            console.error("Error processing embed JSON:", error);
+
+            interaction.reply({
+                content: "Error processing the embed JSON. Please check your format and try again.",
+                ephemeral: true
+            });
+        }
+    }
+};

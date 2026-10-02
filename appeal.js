@@ -3,10 +3,19 @@ const appealmsg2 = require('../../utils/bancheckappeal/appealmsg2');
 
 module.exports = {
     name: "appeal",
+    description: 'Autoappeal Hypixel Security Ban',
+    enabled: true,
+    options: [
+        {
+            name: "ssid",
+            description: "SSID to autoappeal", 
+            type: ApplicationCommandOptionType.String,
+            required: true
+        }
+    ],
     userOnly: true,
     callback: async (client, interaction) => {
-        const ssid = interaction.customid.split("|")[1]
-        
+        const ssid = interaction.options.getString("ssid");
         await interaction.deferReply({ ephemeral: true });
         
         try {
@@ -22,6 +31,6 @@ module.exports = {
                 ],
                 ephemeral: true
             });
-        } 
-    },
+        }
+    }
 };

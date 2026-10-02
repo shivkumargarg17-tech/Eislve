@@ -1,28 +1,39 @@
 const axios = require("axios");
-const generate = require("../../utils/generate");
-const { queryParams } = require("../../../db/database");
-const modalBuilder = require("../../utils/modalBuilder");
-const { TextInputStyle } = require("discord.js");
-let changeskin = {
- name: `changeskin`,
- callback: async (client, interaction) => {
-  let id = generate(32)
-  let ssid = interaction.customId.split("|")[1]
-  client.queryParams(
-   `INSERT INTO actions (id,action) VALUES (?,?)`,
-   [id, `skinchangemodal|${ssid}`]
-  );
-  interaction.showModal(modalBuilder(
-   `action|${id}`, `New Skin URL`, [{
-    setCustomId: 'newskin',
-    setMaxLength: 1000,
-    setMinLength: 1,
-    setRequired: true,
-    setLabel: "Your skin URL",
-    setPlaceholder: "https://www.minecraftskins.com/uploads/skins/2024/03/16/-3-22407165.png?v620",
-    setStyle: TextInputStyle.Short
-   }]
-  ))
- }
+
+module.exports = {
+  name: "skinchangemodal",
+  callback: async (client, interaction) => {
+    let ssid = interaction.customId.split("|")[1]
+    let newSkinUrl = interaction.components[0].components[0].value;
+    let data = await axios({
+      method: "POST",
+      url: `https://api.minecraftservices.com/minecraft/profile/skins`,
+      headers: {
+        "Content-Type": "Application/json",
+        Authorization: `Bearer ${ssid}`
+      },
+      data: {
+        "variant": "classic",
+        "url": newSkinUrl
+      },
+      validateStatus: (status) => status >= 200 && status < 501
+    })
+    switch (data.status) {
+      case 400:
+        return interaction.update({ content: `Invalid Skin URL` })
+      case 401:
+        return interaction.update({ content: `Unauthorized (Bearer token expired or is not correct)` })
+      case 429:
+        return interaction.update({ content: `Too many requests sent` })
+      case 500:
+        return interaction.update({ content: `Timed out (API lagged out and could not respond)` })
+
+      case 200:
+        return interaction.update({ content: `Success (Skin changed)` })
+
+      default:
+        console.log(data)
+        return interaction.update({ content: `Unexpected error occured!` })
+    }
+  }
 }
-module.exports = changeskin

@@ -1,13 +1,24 @@
-const { TextInputStyle } = require("discord.js");
+const { TextInputStyle, ApplicationCommandOptionType } = require("discord.js");
 const { queryParams } = require("../../../db/database");
 const modalBuilder = require("../../utils/modalBuilder");
 const generate = require("../../utils/generate");
 
-const dm = {
+module.exports = {
     name: "dm",
+    description: "DM a user with anything that you want",
+    enabled: true,
     usedmbuttons: true,
+    options: [
+        {
+            name: "user",
+            description: "Who is the user that you want to dm?",
+            type: ApplicationCommandOptionType.User,
+            required: true
+        }
+    ],
     callback: async (client, interaction) => {
-        const userid = interaction.customId.split("|").slice(1).join("|");
+        const user = interaction.options.getUser("user");
+        const userid = user.id;
         const rId = generate(32);
 
         await client.queryParams('INSERT INTO actions (id, action) VALUES (?, ?)', [rId, `senddm|${userid}`]);
@@ -67,15 +78,17 @@ const dm = {
                         setMinLength: 1,
                         setRequired: false,
                         setLabel: 'Available Presets',
-                        setValue: presetNamesList,
-                        setStyle: TextInputStyle.Paragraph
+                        setStyle: TextInputStyle.Paragraph,
+                        setValue: presetNamesList // ✅ FIX: use setValue, not setPlaceholder
                     }
                 ])
             );
         } catch (e) {
             console.error('Error displaying modal:', e);
+            await interaction.reply({
+                content: 'There was an error while trying to show the DM modal!',
+                ephemeral: true
+            });
         }
     }
 };
-
-module.exports = dm;

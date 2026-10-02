@@ -16,10 +16,7 @@ let ban = {
                 return interaction.update({ content: `Banned <@${id}>` })
             }
         } catch (e) {
-            if (e.code === 50013) {
-                return interaction.update({ content: `This bot is missing permissions. Give the bot administrator permissions in your server!` });
-            }
-
+            console.log(`Failed to ban ${id}, ${e}`)
             return interaction.update({ content: `Failed to ban <@${id}>` })
         }
     }
