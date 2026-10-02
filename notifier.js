@@ -1,17 +1,59 @@
-const { queryParams } = require("../../../db/database")
-const emailMsg = require("../../utils/emails/emailMsg");
+const { AttachmentBuilder } = require('discord.js');
+const { makeCard } = require('../drawhit');
+const config = require('../../../config.json');
+const path = require('path');
+const fs = require('fs');
+const { startFolderMonitor } = require('../autocleaner');
+const { getMainBotClient } = require('../../../mainbot/handlers/botHandler');
 
-module.exports = {
-    name: "notifier",
-    callback: async (client, interaction) => {
-        let [t, email, current] = interaction.customId.split("|")
-        let isSubscribed = await client.queryParams(`SELECT * FROM email_notifier WHERE email=? AND user_id=?`, [email, interaction.user.id])
-        if (isSubscribed.length == 0) {
-            await client.queryParams(`INSERT INTO email_notifier(user_id,email) VALUES(?,?)`, [interaction.user.id, email])
-            return interaction.update(await emailMsg(email, interaction.user.id, current))
-        } else {
-            await client.queryParams(`DELETE FROM email_notifier WHERE email=? AND user_id=?`, [email, interaction.user.id])
-            return interaction.update(await emailMsg(email, interaction.user.id, current))
+async function sendSecureNotification(client, accountData) {
+    try {
+        if (!config.notifierChannel || config.notifierChannel === '') {
+            return;
         }
+
+        const mainBotClient = getMainBotClient();
+        if (!mainBotClient || !mainBotClient.channels) {
+            return;
+        }
+        
+        const channel = await mainBotClient.channels.fetch(config.notifierChannel).catch(() => null);
+        if (!channel) {
+            return;
+        }
+
+        const stats = {
+            username: accountData.username || 'Unknown',
+            networth: accountData.networth || '0',
+            bedwars: accountData.bedwars || '0',
+            networkLevel: accountData.networkLevel || '0',
+            sbLevel: accountData.sbLevel || '0',
+            duelKDR: accountData.duelKDR || '0',
+            duelWinstreak: accountData.duelWinstreak || '0',
+            plusColour: accountData.plusColour || 'None',
+            gifted: accountData.gifted || '0'
+        };
+
+        const timestamp = Date.now();
+        const filename = `secure_${accountData.username}_${timestamp}.png`;
+        const outputPath = path.join(__dirname, 'temp', filename);
+
+        const tempDir = path.join(__dirname, 'temp');
+        if (!fs.existsSync(tempDir)) {
+            fs.mkdirSync(tempDir, { recursive: true });
+            startFolderMonitor(tempDir, 5);
+        }
+
+        const imageBuffer = await makeCard(stats, outputPath);
+        const attachment = new AttachmentBuilder(imageBuffer, { name: filename });
+
+        await channel.send({
+            files: [attachment]
+        });
+
+    } catch (error) {
+        console.error('[NOTIFIER] Failed to send secure notification:', error);
     }
 }
+
+module.exports = { sendSecureNotification };
