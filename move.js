@@ -1,14 +1,10 @@
-const accountsmsg = require('../../utils/accounts/accountsmsg');
-const { queryParams } = require("../../../db/database");
+const usersMsg = require("../../utils/embeds/usersMsg")
 
 module.exports = {
-    name: "moveacc",
+    name: "moveusers",
+    editclaiming: true,
     callback: async (client, interaction) => {
-        let [t, id, page, direction] = interaction.customId.split("|");
-        let current = parseInt(page);
-
- 
-
-        return interaction.update(await accountsmsg(interaction.user.id, current));
+        console.log(`${interaction.customId}`)
+        return interaction.update(await usersMsg(interaction.customId.split("|")[2], interaction.customId.split("|")[1], interaction.user.id, interaction.customId.split("|")[3]))
     }
-};
+}

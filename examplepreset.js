@@ -4,18 +4,18 @@ const modalBuilder = require("../../../autosecure/utils/modalBuilder")
 const { TextInputStyle } = require("discord.js")
 
 module.exports = {
-  name: "deletepreset1",
+  name: "presetex",
   callback: async (client, interaction) => {
     let [t, userid, botnumber, page] = interaction.customId.split("|")
     let rId = generate(32)
 
     await queryParams(
       `INSERT INTO actions (id, action) VALUES (?, ?)`,
-      [rId, `deletepresetmodal|${userid}|${botnumber}|${page}`]
+      [rId, `presetexmodal|${userid}|${botnumber}|${[page]}`]
     )
 
     await interaction.showModal(
-      modalBuilder(`action|${rId}`, 'Create Preset', [
+      modalBuilder(`action|${rId}`, 'DM example of your preset.', [
         {
           setCustomId: 'presetname',
           setMaxLength: 21,

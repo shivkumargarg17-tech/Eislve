@@ -1,28 +1,11 @@
-const { queryParams } = require("../../../db/database");
-const getbotnumber = require("../../../db/getbotnumber");
-const defaultEmbeds = require("../../utils/responses/defaultEmbeds");
+const { queryParams } = require("../../../db/database")
+const listProfiles = require("../../utils/hypixelapi/listProfiles")
 
 module.exports = {
-    name: "delete",
-    editembeds: true,
+    name: "deleteprofile",
     callback: async (client, interaction) => {
-        let type = interaction.customId.split("|")[1];
-        let botnumber = await getbotnumber(interaction, client, 2, "delete.js");
-        let userid = interaction.customId.split("|")[3]
-        let defaultEmbed = defaultEmbeds(type);
-
-        await queryParams(
-            `DELETE FROM embeds WHERE type=? AND user_id=? AND botnumber=?`,
-            [type, userid, botnumber]
-        );
-
-        const currentComponents = interaction.message.components;
-        const currentContent = interaction.message.content;
-
-        return interaction.update({
-            content: `Removed your ${type} embed!`,
-            embeds: [defaultEmbed],
-            components: currentComponents
-        });
+        let id = interaction.customId.split("|")[1]
+        await client.queryParams(`DELETE FROM profiles WHERE id=? AND user_id=?`, [id, interaction.user.id])
+        return interaction.update(await listProfiles(interaction.user.id, 1))
     }
-};
+}
