@@ -1,0 +1,51 @@
+{
+  "tokens": [
+    "token"
+  ],
+  "domains": [
+    "domain"
+  ],
+  "domain": [
+    "domain"
+  ],
+
+  "owners": [
+    "ID",
+    ""
+  ],
+  "novps": "False",
+  "useproxy": "False",
+  "proxy": [],
+  "discordServer": "https://discord.gg/ShinxHub",
+  "authkey": "AUTH_KEY",
+  "transcripts": "channel_id",
+  "trial": "1h",
+  "jwtsecret": "JWT",
+  "defaultpfp": "link",
+  "captchakey": "CAPTCHA_KEY",
+  "botslotslink": "link",
+  "notifierWebhook": "link",
+  "guildid": "id",
+  "welcomechannel": "id",
+  "leaderboard": "id",
+  "log": "id",
+  "footer1": "SinxHub",
+  "shoplink": "https://discord.gg/ShinxHub",
+  "roleid": "id",
+  "memberrole": "id",
+  "ip6": "ipv6",
+  "ip4": "ipv4",
+  "hypixelemail": "",
+  "hypixelpassword": "",
+  "ticketcategory": "id",
+  "vpsip": "ipv4",
+  "vpsip2": "ipv6",
+  "smtpHost": "0.0.0.0",
+  "smtpPorts": [2525, 25],
+  "footer": {
+    "text": "ShinxHub Leak By Vape",
+    "icon_url": "link"
+  },
+  "blockedEmails": [],
+  "ignoreEmails": []
+}
