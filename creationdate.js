@@ -1,43 +1,34 @@
-const axios = require("axios");
-const generate = require("../../utils/generate");
-const { queryParams } = require("../../../db/database");
-const { EmbedBuilder } = require("discord.js");
+const axios = require('axios');
 
-let changeskin = {
-  name: `creationdate`,
-  callback: async (client, interaction) => {
-    try {
-      let creationdate = interaction.customId.split("|")[1];
+module.exports = async (ssid) => {
+  try {
+    let req = await axios({
+      method: "GET",
+      url: "https://api.minecraftservices.com/minecraft/profile/namechange",
+      headers: {
+        Authorization: `Bearer ${ssid}`
+      }
+    });
 
-
-      const creationDate = new Date(creationdate);
-      if (isNaN(creationDate.getTime())) throw new Error("Invalid date format");
-
-
-      const formattedDate = `<t:${Math.floor(creationDate.getTime() / 1000)}:F>`;
+ //   console.log(`creationdate response: ${req.data}`)
 
 
-      const embed = new EmbedBuilder()
-        .setColor(0xb2c7e0)
-        .addFields({
-          name: 'Minecraft Creation Date [Own timezone]',
-          value: formattedDate,
-          inline: false
-        });
-
-
-      await interaction.reply({
-        embeds: [embed],
-        ephemeral: true
-      });
-    } catch (error) {
-      console.error("Error processing creation date:", error);
-      await interaction.reply({
-        content: "An error occurred while processing the creation date.",
-        ephemeral: true
-      });
+    if (isvalid(req)) {
+      return {
+        created: req.data.createdAt,
+        allowed: req.data.nameChangeAllowed
+      };
     }
+    
+  } catch (error) {
+    console.error(error);
   }
-};
 
-module.exports = changeskin;
+  return {};
+
+}
+
+
+function isvalid(req) {
+  return req.status === 200 && req.data && req.data.createdAt;
+}
